@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>YAKAMOZ</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body{
+  margin:0;
+  height:100vh;        /* ⭐ min-height DEĞİL */
+  overflow:hidden;    /* ⭐ SAYFA SCROLL KAPALI */
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:
+    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+    url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e');
+  background-size:cover;
+  background-position:center;
+}
+
+/* ORTAK */
+.screen{
+  display:none;
+  height:100vh;     /* ⭐ */
+}
+
+.centerScreen{display:flex;align-items:center;justify-content:center;}
+
+/* GLASS */
+.glassBox{
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(12px);
+  border-radius:20px;
+  padding:30px 25px;
+  width:90%;
+  max-width:360px;
+  text-align:center;
+}
+.glassBox h2{color:#fff;}
+.glassBox input{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:12px;
+  border:none;
+}
+.glassBox button{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  background:#25D366;
+  color:#fff;
+  font-weight:bold;
+}
+
+/* CHAT LAYOUT */
+#chatScreen{
+  display:flex;
+  justify-content:center;
+  height:100vh;        /* ⭐ */
+  overflow:hidden;     /* ⭐ */
+}
+#chatLayout{
+  width:100%;
+  max-width:1600px;
+  height:100%;
+  display:grid;
+  grid-template-columns:260px 1fr 260px;
+  gap:20px;
+  padding:20px;
+  box-sizing:border-box; /* ⭐ BU YOKSA TAŞAR */
+}
+
+/* SIDE */
+.side{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+.note{
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(12px);
+  border-radius:16px;
+  padding:14px;
+  color:#fff;
+  font-size:13px;
+}
+.note h4{margin:0 0 6px;font-size:14px;}
+
+/* CHAT CENTER */
+.center{
+  display:flex;
+  flex-direction:column;
+  background:rgba(0,0,0,.55);
+  height:100%;
+  min-height:0;
+  overflow:hidden; /* ⭐ */
+}
+#chatHeader{
+  background:rgba(255,255,255,.9);
+  text-align:center;
+  padding:15px;
+  font-weight:600;
+}
+#chat{
+  flex:1;
+  overflow-y:auto;
+  min-height:0;   /* ⭐ BU SATIRI EKLE */
+  padding:15px;
+  background:
+    linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
+    url("https://images.unsplash.com/photo-1519681393784-d120267933ba");
+  background-size:cover;
+  background-position:center;
+}
+
+/* MESSAGE */
+.msgWrap{
+  display:flex;
+  gap:8px;
+  align-items:flex-end;
+  margin-bottom:10px;
+  width:100%;                 /* 🔴 ÖNEMLİ */
+}
+.msg{
+  max-width:65%;
+  padding:12px 14px;
+  border-radius:22px;
+  font-size:14px;
+}
+.me{
+  background:#25D366;
+  color:#fff;
+  margin-left:auto;   /* SAĞA İTER */
+}
+
+.other{
+  background:#fff;
+  margin-right:auto;  /* SOLA İTER */
+}
+
+
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+/* SEND */
+#sendBar{
+  background:rgba(255,255,255,.9);
+  display:flex;
+  gap:10px;
+  padding:10px;
+}
+#sendBar input{
+  flex:1;
+  padding:12px;
+  border-radius:25px;
+  border:1px solid #ddd;
+}
+#sendBar button{
+  padding:0 18px;
+  border-radius:25px;
+  border:none;
+  background:#25D366;
+  color:#fff;
+  font-weight:bold;
+}
+
+/* WHEEL */
+.wheelBox{
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(12px);
+  border-radius:16px;
+  padding:15px;
+  text-align:center;
+}
+.wheelBox button{
+  margin-top:10px;
+  padding:8px 16px;
+  border:none;
+  border-radius:20px;
+  background:#25D366;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+#wheelResult{
+  margin-top:8px;
+  color:white;
+  font-weight:600;
+}
+.msg.wheel{
+  background:linear-gradient(135deg,#ffe259,#ffa751);
+  color:#4a2c00;
+  font-weight:600;
+  text-align:center;
+}
+
+
+/* MOBILE */
+@media(max-width:900px){
+  #chatLayout{grid-template-columns:1fr;}
+  .side{display:none;}
+}
+/* 🎧 MUSIC CARD */
+.musicCard{
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(12px);
+  border-radius:18px;
+  padding:14px;
+  color:#fff;
+}
+
+.albumCover{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1; /* KARE */
+  border-radius:14px;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+
+.albumCover img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.playIcon{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:40px;
+  background:rgba(0,0,0,.35);
+  opacity:0;
+  transition:.3s;
+  cursor:pointer;
+}
+
+.albumCover:hover .playIcon{
+  opacity:1;
+}
+
+.musicInfo{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.song{
+  font-weight:600;
+  font-size:14px;
+}
+
+.artist{
+  font-size:12px;
+  opacity:.85;
+}
+/* 🍽️ RECIPE CARD */
+.recipeCard{
+  position:relative;
+  width:100%;
+  height:450px;            /* 🔴 UZUNLUK BURADAN */
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.4)),
+    url("https://i.hizliresim.com/1ncm0p5.png");
+  background-size:cover;
+  background-position:center;
+  color:#fff;
+}
+
+.recipeOverlay{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:16px;
+  background:linear-gradient(
+    rgba(0,0,0,0),
+    rgba(0,0,0,0.75)
+  );
+}
+
+.recipeOverlay h4{
+  margin:0;
+  font-size:15px;
+  font-weight:600;
+}
+
+.recipeOverlay p{
+  margin:4px 0 0;
+  font-size:13px;
+  opacity:.95;
+}
+.recipeOverlay:empty::before{
+  content:"Tarifini yaz…";
+  color:#ddd;
+}
+.balimsuNote{
+  background:linear-gradient(135deg,#ffb6d9,#ffc1e3);
+  color:#4a1f33;
+  font-size:14px;
+}
+
+.balimsuNote h4{
+  font-size:15px;
+  font-weight:600;
+}
+.balimsuNote{
+  min-height:300px;      /* 🔴 UZUNLUK */
+  padding:20px;          /* iç boşluk */
+}
+#emojiBtn{
+  background:none;
+  border:none;
+  font-size:22px;
+  cursor:pointer;
+}
+
+#emojiPanel{
+  position:absolute;
+  bottom:70px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#fff;
+  border-radius:16px;
+  padding:10px;
+  display:none;
+  width:280px;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
+  z-index:999;
+}
+#emojiPanel{
+  max-height:220px;
+  overflow-y:auto;
+}
+
+
+#emojiPanel span{
+  font-size:22px;
+  padding:6px;
+  cursor:pointer;
+}
+
+#emojiPanel span:hover{
+  background:#f2f2f2;
+  border-radius:8px;
+  transform:scale(1.2);
+}
+.systemWrap{
+  display:flex;
+  justify-content:center;
+  margin:12px 0;
+}
+
+.systemMsg{
+  background:rgba(255,255,255,.9);
+  color:#333;
+  font-size:15px;
+  padding:12px 20px;
+  border-radius:18px;
+  max-width:80%;
+  text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.18);
+}
+
+
+</style>
+</head>
+
+<body>
+
+<!-- NAME -->
+<div id="nameScreen" class="screen centerScreen">
+  <div class="glassBox">
+    <h2>Adın</h2>
+    <input id="usernameInput" placeholder="Ad">
+    <input id="avatarInput" placeholder="Profil Fotoğrafı (URL)">
+    <button onclick="saveName()">Devam</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="screen centerScreen">
+  <div class="glassBox">
+    <h2>Sohbet Odamıza Hoşgeldin ❤️</h2>
+    <input id="roomName" placeholder="Oda adı">
+    <input id="roomPass" type="password" placeholder="Şifre">
+    <button onclick="joinRoom()">Gir</button>
+    <p id="error" style="color:#ffdede;"></p>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div id="chatScreen" class="screen">
+  <div id="chatLayout">
+
+    <div class="side">
+
+ <!-- 🎧 GÜNÜN ŞARKISI -->
+<div class="musicCard">
+
+  <div class="albumCover" onclick="toggleAudio()">
+    <img id="coverImg" src="https://i.hizliresim.com/4ki4ypt.png">
+    <div class="playIcon" id="playIcon">▶</div>
+  </div>
+
+  <div class="musicInfo">
+    <span class="song" id="songTitle">Racismo</span>
+    <span class="artist" id="artistName">Sergio Contreras</span>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;margin-top:10px;">
+    <button onclick="prevSong()">⏮️</button>
+    <button onclick="nextSong()">⏭️</button>
+  </div>
+
+  <audio id="audioPlayer"></audio>
+
+</div>
+
+
+
+
+  <!-- 🥑 ŞEKERSİZ TARİF -->
+  <div class="recipeCard">
+  <div class="recipeOverlay" contenteditable="true">
+    <h4>🥑 Şekersiz Tarif</h4>
+    <p>Buraya tarifini yaz…</p>
+  </div>
+</div>
+
+
+</div>
+
+
+
+
+    <div class="center">
+      <div id="chatHeader">yakamaz 💗<span id="roomNameHeader"></span></div>
+      <div id="chat"></div>
+      <div id="sendBar">
+        <input id="messageInput" placeholder="Mesaj yaz">
+        <button id="emojiBtn">😊</button>
+        <button onclick="sendMessage()">Gönder</button>
+      </div>
+    </div>
+
+ <div class="side">
+
+  <div class="note balimsuNote">
+    <h4>balımsu yine bişiler öneriyo 💕🙈💌</h4>
+    frekanslar, japon ablalar, doğal taşlar falan 😁
+  </div>
+
+  <div class="note">
+    <h4>💭 Özlü Söz</h4>
+    Sessizlik bazen en güzel cevaptır.
+  </div>
+
+  <div class="wheelBox">
+    <canvas id="wheel" width="220" height="220"></canvas>
+    <button onclick="spinWheel()">Çevir</button>
+    <div id="wheelResult"></div>
+  </div>
+
+</div>
+
+
+</div>
+
+<script>
+const firebaseConfig={
+  apiKey:"AIzaSyCncBeeKKga2SQMbf7VpvgDnS9bnC_KWi4",
+  authDomain:"ozel-chat-1ed06.firebaseapp.com",
+  projectId:"ozel-chat-1ed06"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+
+let username=localStorage.getItem("username")||"";
+let avatar=localStorage.getItem("avatar")||"";
+let room="";
+
+window.onload=()=>show(username?"login":"nameScreen");
+
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
+  document.getElementById(id).style.display="flex";
+}
+
+function saveName(){
+  if(!usernameInput.value) return;
+  localStorage.setItem("username",usernameInput.value);
+  localStorage.setItem("avatar",avatarInput.value);
+  username=usernameInput.value;
+  avatar=avatarInput.value;
+  show("login");
+}
+
+async function joinRoom(){
+  const rn=roomName.value, rp=roomPass.value;
+  if(!rn||!rp) return;
+  const ref=db.collection("rooms").doc(rn);
+  const doc=await ref.get();
+  if(!doc.exists) await ref.set({pass:rp,users:1});
+  else{
+    if(doc.data().pass!==rp) return error.innerText="Şifre yanlış";
+    await ref.update({users:doc.data().users+1});
+  }
+  room=rn;
+  roomNameHeader.innerText=room;
+  show("chatScreen");
+  listenMessages();
+}
+
+function sendMessage(){
+  if(!messageInput.value) return;
+  db.collection("rooms").doc(room).collection("messages").add({
+    user:username,
+    avatar:avatar,
+    text:messageInput.value,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  messageInput.value="";
+}
+
+function listenMessages(){
+  db.collection("rooms").doc(room).collection("messages")
+  .orderBy("time").onSnapshot(s=>{
+    chat.innerHTML="";
+
+    s.forEach(d=>{
+      if(d.metadata.hasPendingWrites) return;
+
+      const m = d.data();
+      if(!m.time) return;
+
+      let wrap;
+
+if(m.type === "wheel"){
+  wrap = document.createElement("div");
+  wrap.className = "systemWrap";
+} else {
+  wrap = document.createElement("div");
+  wrap.className = "msgWrap";
+}
+
+
+      if(m.user !== username && m.avatar){
+        const img = document.createElement("img");
+        img.src = m.avatar;
+        img.className = "avatar";
+        wrap.appendChild(img);
+      }
+
+      const div = document.createElement("div");
+
+if(m.type === "wheel"){
+  div.className = "systemMsg";
+  div.innerHTML = `
+    🎡 <b>${m.user}</b> çark çevirdi<br>
+    ${m.result}
+  `;
+} else {
+
+  div.className = "msg " + (m.user === username ? "me" : "other");
+  div.innerHTML = `<b>${m.user}</b><br>${m.text}`;
+}
+
+wrap.appendChild(div);
+
+
+      if(m.user === username && m.avatar){
+        const img = document.createElement("img");
+        img.src = m.avatar;
+        img.className = "avatar";
+        wrap.appendChild(img);
+      }
+
+      chat.appendChild(wrap);
+    });
+
+    chat.scrollTop = chat.scrollHeight;
+  });
+}
+
+/* 🎡 WHEEL */
+const wheel=document.getElementById("wheel");
+const ctx=wheel.getContext("2d");
+const items=[
+  "☕🔥💭 Kahve iç",
+  "🎶🎧✨ Şarkı aç",
+  "💬📱💙 Mesaj at",
+  "🌬️🫁🧘 Derin nefes",
+  "🚶‍♂️🌿🌞 Yürü",
+  "📝✍️📓 Not yaz",
+  "🌸👃✨ Parfüm dene",
+  "🎵🔄🎧 Müzik değiştir",
+  "🤫🌙🖤 Sus",
+  "😄😊✨ Gül",
+  "💧🚰🌊 Su iç",
+  "📸✨🖼️ Foto çek",
+  "📖💭✨ Anı yaz",
+  "⏸️🛑🧠 Dur",
+  "➡️🔥🚀 Devam et",
+  "😌🧘‍♀️🌙 Rahatla"
+];
+let angle=0;
+
+function drawWheel(){
+  const r=wheel.width/2;
+  const slice=(2*Math.PI)/items.length;
+  ctx.clearRect(0,0,wheel.width,wheel.height);
+  items.forEach((t,i)=>{
+    ctx.beginPath();
+    ctx.moveTo(r,r);
+    ctx.arc(r,r,r,angle+i*slice,angle+(i+1)*slice);
+    ctx.fillStyle=`hsl(${i*360/items.length},70%,60%)`;
+    ctx.fill();
+    ctx.save();
+    ctx.translate(r,r);
+    ctx.rotate(angle+i*slice+slice/2);
+    ctx.textAlign="right";
+    ctx.fillStyle="#000";
+    ctx.font="12px sans-serif";
+    ctx.fillText(t,r-10,5);
+    ctx.restore();
+  });
+}
+drawWheel();
+
+function spinWheel(){
+  const extra = Math.random() * 10 + 10; // daha fazla tur
+  const targetAngle = angle + extra * Math.PI * 2;
+  const start = performance.now();
+  const duration = 2500;
+
+  function animate(t){
+    const p = Math.min((t - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3); // ease-out
+    angle = angle + (targetAngle - angle) * ease;
+    drawWheel();
+
+    if(p < 1){
+      requestAnimationFrame(animate);
+    } else {
+      angle = targetAngle;
+      showResult();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function showResult(){
+  const slice = (2 * Math.PI) / items.length;
+
+  const normalized =
+    (2 * Math.PI - (angle % (2 * Math.PI)) + slice / 2) % (2 * Math.PI);
+
+  const index = Math.floor(normalized / slice);
+  const result = items[index];
+
+  // 🔥 FIRESTORE'A KAYDET
+  db.collection("rooms").doc(room).collection("messages").add({
+    type: "wheel",
+    user: username,
+    result: result,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+
+const songs = [
+  {
+    title: "Racismo",
+    artist: "en en en sevdiklerimden🎆🎡🚀",
+    src: "racismoo.mp3",
+    cover: "https://i.hizliresim.com/4ki4ypt.png"
+  },
+  {
+    title: "Town",
+    artist: "Balımsu favlarından💗🎆🏜",
+    src: "town.mp3",
+    cover: "https://i.hizliresim.com/4ki4ypt.png"
+  },
+  {
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından ˚.🎀༘⋆",
+    src: "motii.mp3",
+    cover: "https://i.hizliresim.com/4ki4ypt.png"
+  },
+{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🦚🙈🍧",
+    src: "whoopp.mp3",
+    cover: "https://i.hizliresim.com/4ki4ypt.png"
+  },
+{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🫂🪼🌺",
+    src: "Entrance.mp3",
+    cover: "https://i.hizliresim.com/4ki4ypt.png"
+  },
+{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "adalente.mp3",
+    cover: "https://i.hizliresim.com/4ki4ypt.png"
+  },
+{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "touch.mp3",
+    cover: "https://i.hizliresim.com/4ki4ypt.png"
+  },
+
+];
+
+let currentSong = 0;
+let isPlaying = false;
+
+const audio = document.getElementById("audioPlayer");
+const playIcon = document.getElementById("playIcon");
+const songTitle = document.getElementById("songTitle");
+const artistName = document.getElementById("artistName");
+const coverImg = document.getElementById("coverImg");
+
+function loadSong(index){
+  const song = songs[index];
+  audio.src = song.src;
+  songTitle.innerText = song.title;
+  artistName.innerText = song.artist;
+  coverImg.src = song.cover;
+}
+
+function toggleAudio(){
+  if(!isPlaying){
+    audio.play();
+    playIcon.innerText = "⏸";
+    isPlaying = true;
+  } else {
+    audio.pause();
+    playIcon.innerText = "▶";
+    isPlaying = false;
+  }
+}
+
+function nextSong(){
+  currentSong = (currentSong + 1) % songs.length;
+  loadSong(currentSong);
+  audio.play();
+  playIcon.innerText = "⏸";
+  isPlaying = true;
+}
+
+function prevSong(){
+  currentSong = (currentSong - 1 + songs.length) % songs.length;
+  loadSong(currentSong);
+  audio.play();
+  playIcon.innerText = "⏸";
+  isPlaying = true;
+}
+
+loadSong(currentSong);
+
+window.addEventListener("load", () => {
+  const emojiBtn = document.getElementById("emojiBtn");
+  const emojiPanel = document.getElementById("emojiPanel");
+
+  if(!emojiBtn || !emojiPanel) return; // ekstra güvenlik
+
+  emojiBtn.onclick = () => {
+    emojiPanel.style.display =
+      emojiPanel.style.display === "block" ? "none" : "block";
+  };
+
+  emojiPanel.addEventListener("click", e => {
+    if(e.target.tagName === "SPAN"){
+      messageInput.value += e.target.innerText;
+      messageInput.focus();
+      emojiPanel.style.display = "none";
+    }
+  });
+});
+const messageInput = document.getElementById("messageInput");
+
+messageInput.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+</script>
+<div id="emojiPanel">
+  <span>😀</span><span>😃</span><span>😄</span><span>😁</span><span>😆</span><span>😅</span><span>🤣</span><span>😂</span>
+  <span>🙂</span><span>🙃</span><span>🫠</span><span>😉</span><span>😊</span><span>😇</span><span>🥰</span><span>😍</span>
+  <span>🤩</span><span>😘</span><span>😗</span><span>☺️</span><span>😚</span><span>😙</span><span>🥲</span><span>😋</span>
+  <span>😛</span><span>😜</span><span>🤪</span><span>😝</span><span>🤑</span><span>🤗</span><span>🤭</span><span>🫢</span>
+  <span>🫣</span><span>🤫</span><span>🤔</span><span>🫡</span><span>🤐</span><span>🤨</span><span>😐</span><span>😑</span>
+  <span>😶</span><span>🫥</span><span>😶‍🌫️</span><span>😏</span><span>😒</span><span>🙄</span><span>😬</span><span>😮‍💨</span>
+  <span>🤥</span><span>🫨</span><span>🙂‍↔️</span><span>🙂‍↕️</span><span>😌</span><span>😔</span><span>😪</span><span>🤤</span>
+  <span>😴</span><span>🫩</span><span>😷</span><span>🤒</span><span>🤕</span><span>🤢</span><span>🤮</span><span>🤧</span>
+  <span>🥵</span><span>🥶</span><span>🥴</span><span>😵</span><span>😵‍💫</span><span>🤯</span><span>🤠</span><span>🥳</span>
+  <span>🥸</span><span>😎</span><span>🤓</span><span>🧐</span><span>😕</span><span>🫤</span><span>😟</span><span>🙁</span>
+  <span>☹️</span><span>😮</span><span>😯</span><span>😲</span><span>😳</span><span>🥺</span><span>🥹</span><span>😦</span>
+  <span>😧</span><span>😨</span><span>😰</span><span>😥</span><span>😢</span><span>😭</span><span>😱</span><span>😖</span>
+  <span>😣</span><span>😞</span><span>😓</span><span>😩</span><span>😫</span><span>🥱</span><span>😤</span><span>😡</span>
+  <span>😠</span><span>🤬</span><span>😈</span><span>👿</span><span>💀</span><span>☠️</span><span>💩</span><span>🤡</span>
+  <span>👹</span><span>👺</span><span>👻</span><span>👽</span><span>👾</span><span>🤖</span><span>😺</span><span>😸</span>
+  <span>😹</span><span>😻</span><span>😼</span><span>😽</span><span>🙀</span><span>😿</span><span>😾</span><span>🙈</span>
+  <span>🙉</span><span>🙊</span><span>💌</span><span>💘</span><span>💝</span><span>💖</span><span>💗</span><span>💓</span>
+  <span>💞</span><span>💕</span><span>💟</span><span>❣️</span><span>💔</span><span>❤️‍🔥</span><span>❤️‍🩹</span><span>❤️</span>
+  <span>🩷</span><span>🧡</span><span>💛</span><span>💚</span><span>💙</span><span>🩵</span><span>💜</span><span>🤎</span>
+  <span>🖤</span><span>🩶</span><span>🤍</span><span>💋</span><span>💯</span><span>💢</span><span>💥</span><span>💫</span>
+  <span>💦</span><span>💨</span><span>🕳️</span><span>💬</span><span>👁️‍🗨️</span><span>🗨️</span><span>🗯️</span><span>💭</span>
+</div>
+
+</body>
+</html>
+
