@@ -130,7 +130,7 @@ body{
   max-width:65%;
   padding:12px 14px;
   border-radius:22px;
-  font-size:14px;
+  font-size:16px;
 }
 .me{
   background:#25D366;
@@ -373,6 +373,286 @@ body{
   text-align:center;
   box-shadow:0 4px 12px rgba(0,0,0,.18);
 }
+.msgTime{
+  font-size:11px;
+  opacity:.6;
+  margin-top:4px;
+  text-align:right;
+}
+
+.other + .msgTime{
+  text-align:left;
+}
+
+#noteText{
+  width:92%;
+  height:200px;
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  resize:none;
+  font-size:14px;
+  background:rgba(255,255,255,.85);
+}
+
+.pageControls{
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
+}
+
+.pageControls button{
+  border:none;
+  padding:6px 14px;
+  border-radius:12px;
+  background:#fff;
+  cursor:pointer;
+}
+/* 📄 DEFTER YAPRAK ANİMASYONU */
+.notePage{
+  animation-duration: .45s;
+  animation-fill-mode: both;
+}
+
+.pageNext{
+  animation-name: pageNext;
+}
+
+.pagePrev{
+  animation-name: pagePrev;
+}
+
+@keyframes pageNext{
+  from{
+    opacity:0;
+    transform:translateX(40px) rotateY(-8deg);
+  }
+  to{
+    opacity:1;
+    transform:translateX(0) rotateY(0);
+  }
+}
+
+@keyframes pagePrev{
+  from{
+    opacity:0;
+    transform:translateX(-40px) rotateY(8deg);
+  }
+  to{
+    opacity:1;
+    transform:translateX(0) rotateY(0);
+  }
+} 
+/* 📕 DEFTER KAPAĞI */
+.notebookCover{
+  position:relative;
+  background:linear-gradient(135deg,#3b1f2b,#5a2b3f);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.15),
+    0 10px 30px rgba(0,0,0,.35);
+}
+
+/* taşlı düğme */
+.coverButton{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:radial-gradient(circle,#ffd6ff,#c77dff,#7b2cbf);
+  box-shadow:0 0 8px rgba(255,214,255,.8);
+}
+
+/* deri dokusu hissi */
+.notebookCover::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,.03),
+      rgba(255,255,255,.03) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+  pointer-events:none;
+}
+
+/* 🔖 SAYFA AYIRACI */
+.bookmark{
+  position:absolute;
+  right:-6px;
+  top:60px;
+  width:20px;
+  height:70px;
+  background:linear-gradient(#ffb703,#fb8500);
+  border-radius:0 6px 6px 0;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+
+.bookmark::after{
+  content:"";
+  position:absolute;
+  bottom:-10px;
+  left:0;
+  width:0;
+  height:0;
+  border-left:10px solid transparent;
+  border-right:10px solid transparent;
+  border-top:10px solid #fb8500;
+}
+/* 📕 KAPAK AÇ / KAPA */
+.notebookCover{
+  perspective:1200px;
+  overflow:hidden;
+}
+
+.coverLayer{
+  position:absolute;
+  inset:0;
+  background: linear-gradient(
+    135deg,
+    #0050ff,
+    #1f7bff,
+    #4da3ff
+  );
+
+  border-radius:18px;
+  transform-origin:left;
+  transition:transform .6s ease;
+  z-index:5;
+
+  box-shadow:
+    0 0 30px rgba(50,120,255,.75),
+    inset 0 0 20px rgba(255,255,255,.25);
+}
+
+
+/* deri hissi */
+.coverLayer::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.04) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+}
+
+.notebookOpen .coverLayer{
+  transform:rotateY(-160deg);
+}
+
+.notebookContent{
+  position:relative;
+  z-index:1;
+}
+/* ✨ KAPAK PARLAMA */
+.coverGlow{
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  background:radial-gradient(
+    circle at left,
+    rgba(255,255,255,.45),
+    rgba(255,255,255,0) 60%
+  );
+  opacity:0;
+  pointer-events:none;
+}
+
+.notebookOpen .coverGlow{
+  animation:glowFlash .6s ease;
+}
+
+@keyframes glowFlash{
+  0%{opacity:0}
+  40%{opacity:1}
+  100%{opacity:0}
+}
+/* 🪶 TÜYLÜ KAPAK DOKUSU */
+.furLayer{
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,200,220,.55), transparent 35%),
+    radial-gradient(circle at 70% 40%, rgba(255,180,210,.45), transparent 40%),
+    radial-gradient(circle at 40% 70%, rgba(255,170,200,.4), transparent 45%),
+    repeating-linear-gradient(
+      60deg,
+      rgba(255,190,220,.25),
+      rgba(255,190,220,.25) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+  filter:blur(1.8px);
+  opacity:1;
+  mix-blend-mode:screen; /* 🔥 ASIL OLAY */
+  pointer-events:none;
+}
+
+
+/* açılırken kapakla birlikte dönsün */
+.coverLayer .furLayer{
+  transform-origin:left;
+}
+/* 🖼️ KAPAK FOTO ALANI */
+.coverPhotos{
+  position:absolute;
+  top:45px;
+  left:50%;
+  transform:translateX(-50%);
+  width:70%;
+  height:280px; /*defter kapağındaki foto yüksekliği */
+  border-radius:14px;
+  overflow:hidden;
+  background:rgba(255,255,255,.25);
+  box-shadow:0 0 18px rgba(0,0,0,.35);
+  z-index:6;
+}
+
+.coverPhotos img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.coverCaption{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:6px 8px;
+  font-size:12px;
+  color:#fff;
+  background:rgba(0,0,0,.35);
+  backdrop-filter:blur(4px);
+  text-align:center;
+}
+
+.coverPrev,
+.coverNext{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,.8);
+  border:none;
+  border-radius:50%;
+  width:26px;
+  height:26px;
+  cursor:pointer;
+}
+
+.coverPrev{ left:6px; }
+.coverNext{ right:6px; }
 
 
 </style>
@@ -458,10 +738,43 @@ body{
 
  <div class="side">
 
-  <div class="note balimsuNote">
-    <h4>balımsu yine bişiler öneriyo 💕🙈💌</h4>
-    frekanslar, japon ablalar, doğal taşlar falan 😁
+<div class="note balimsuNote">
+
+  <div class="coverLayer" onclick="toggleCover()">
+
+  <div class="coverPhotos">
+    <img id="coverPhoto" />
+    <div class="coverCaption" id="coverCaption"></div>
+
+    <button class="coverPrev" onclick="event.stopPropagation(); prevCoverPhoto()">⬅</button>
+    <button class="coverNext" onclick="event.stopPropagation(); nextCoverPhoto()">➡</button>
   </div>
+
+  <div class="furLayer"></div>
+  <div class="coverGlow"></div>
+
+</div>
+
+
+  <div class="coverButton" onclick="toggleCover()"></div>
+
+  <div class="notebookContent">
+    <h4>📓 Azreal kuşumla birbirimize öneriler 💗</h4>
+
+    <div id="pageInfo">Sayfa 1 / 6</div>
+
+    <div class="bookmark"></div>
+
+    <textarea id="noteText" class="notePage"
+      placeholder="birbirimize öneriyoruzzz 💗"></textarea>
+
+    <div class="pageControls">
+      <button onclick="prevPage()">👈🏻</button>
+      <button onclick="nextPage()">👉🏻</button>
+    </div>
+  </div>
+
+</div>
 
   <div class="note">
     <h4>💭 Özlü Söz</h4>
@@ -522,6 +835,7 @@ async function joinRoom(){
   roomNameHeader.innerText=room;
   show("chatScreen");
   listenMessages();
+  listenPage();
 }
 
 function sendMessage(){
@@ -533,6 +847,13 @@ function sendMessage(){
     time: firebase.firestore.FieldValue.serverTimestamp()
   });
   messageInput.value="";
+}
+function formatTime(ts){
+  const d = ts.toDate();
+  return d.toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 function listenMessages(){
@@ -575,7 +896,11 @@ if(m.type === "wheel"){
 } else {
 
   div.className = "msg " + (m.user === username ? "me" : "other");
-  div.innerHTML = `<b>${m.user}</b><br>${m.text}`;
+  div.innerHTML = `
+  <b>${m.user}</b><br>
+  ${m.text}
+  <div class="msgTime">${formatTime(m.time)}</div>
+`;
 }
 
 wrap.appendChild(div);
@@ -724,7 +1049,167 @@ const songs = [
     src: "music/touch.mp3",
     cover: "https://i.hizliresim.com/4ofzlxm.png"
   },
-
+{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/1.mp3",
+    cover: "https://i.hizliresim.com/7eqkq6f.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "music/2.mp3",
+    cover: "https://i.hizliresim.com/e60vci6.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/3.mp3",
+    cover: "https://i.hizliresim.com/mxfk8ms.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "music/4.mp3",
+    cover: "https://i.hizliresim.com/t648tdc.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/5.mp3",
+    cover: "https://i.hizliresim.com/i0m6n8h.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "music/6.mp3",
+    cover: "https://i.hizliresim.com/g0fxfwu.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/7.mp3",
+    cover: "https://i.hizliresim.com/amdnybn.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "music/8.mp3",
+    cover: "https://i.hizliresim.com/7pyzogl.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/9.mp3",
+    cover: "https://i.hizliresim.com/nuv085a.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "music/10.mp3",
+    cover: "https://i.hizliresim.com/io0o5n5.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/11.mp3",
+    cover: "https://i.hizliresim.com/ruzb4q3.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "çok üzücü ama çokzel💞🧡💘",
+    src: "music/12.mp3",
+    cover: "https://i.hizliresim.com/7plgblz.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "nakaratı çokzeel🌺🌿🐤",
+    src: "music/13.mp3",
+    cover: "https://i.hizliresim.com/fu3rysr.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "bu şarkı sensin💞🧡💘",
+    src: "music/14.mp3",
+    cover: "https://i.hizliresim.com/ptd97o9.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "senin vibeın gibi🌺🌿🐤",
+    src: "music/15.mp3",
+    cover: "https://i.hizliresim.com/93lvgbn.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "en az 10 yıldır fav💞🧡💘",
+    src: "music/16.mp3",
+    cover: "https://i.hizliresim.com/io3loc2.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "zamazingoooo🌺🌿🐤",
+    src: "music/17.mp3",
+    cover: "https://i.hizliresim.com/b4y8mzh.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "music/18.mp3",
+    cover: "https://i.hizliresim.com/lado7y8.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/19.mp3",
+    cover: "https://i.hizliresim.com/d3eewun.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "rus rapinin atatürkü🌺🌿🐤",
+    src: "music/20.mp3",
+    cover: "https://i.hizliresim.com/oftuak5.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "rus rapinin atatürkü💞🧡💘",
+    src: "music/21.mp3",
+    cover: "https://i.hizliresim.com/6p9uc0o.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/22.mp3",
+    cover: "https://i.hizliresim.com/32jbs3q.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "rus rapinin atatürkü🌺🌿🐤",
+    src: "music/23.mp3",
+    cover: "https://i.hizliresim.com/e53umr0.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "rus rapinin atatürkü🌺🌿🐤",
+    src: "music/24.mp3",
+    cover: "https://i.hizliresim.com/86uvb65.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "music/25.mp3",
+    cover: "https://i.hizliresim.com/t2fqte4.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından🌺🌿🐤",
+    src: "music/26.mp3",
+    cover: "https://i.hizliresim.com/bapgc37.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "şarkıyı kulağımdan içeri sokasım geliyodu💞🧡💘",
+    src: "music/27.mp3",
+    cover: "https://i.hizliresim.com/mii8xt4.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "russ favlarımdaa bayılıyom💞🧡💘",
+    src: "music/28.mp3",
+    cover: "https://i.hizliresim.com/q18mxxi.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "aşırıı güzelll 🌺🌿🐤",
+    src: "music/29.mp3",
+    cover: "https://i.hizliresim.com/g7f62ef.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "Balımsu favlarından💞🧡💘",
+    src: "music/30.mp3",
+    cover: "https://i.hizliresim.com/gjiv6wu.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "rusçaaa favlarımdan🌺🌿🐤",
+    src: "music/31.mp3",
+    cover: "https://i.hizliresim.com/bij5we3.png"
+  },{
+    title: "aşırı hype edicek ",
+    artist: "ilk türkçe şarkımızz💞🧡💘",
+    src: "music/32.mp3",
+    cover: "https://i.hizliresim.com/kv2b2nq.png"
+  },
 ];
 
 let currentSong = 0;
@@ -801,6 +1286,118 @@ messageInput.addEventListener("keydown", function(e){
     sendMessage();
   }
 });
+let currentPage = 1;
+const totalPages = 6;
+let unsubscribeNote = null;
+
+function listenPage(){
+  if(unsubscribeNote) unsubscribeNote();
+
+  const ref = db
+    .collection("rooms")
+    .doc(room)
+    .collection("notebook")
+    .doc("page" + currentPage);
+
+  unsubscribeNote = ref.onSnapshot(doc=>{
+    if(doc.exists){
+      noteText.value = doc.data().text || "";
+    } else {
+      noteText.value = "";
+    }
+  });
+
+  pageInfo.innerText = `Sayfa ${currentPage} / ${totalPages}`;
+
+  updateBookmark(); // 🔖 AYIRACI GÜNCELLE
+}
+
+
+noteText.addEventListener("input", ()=>{
+  const ref = db
+    .collection("rooms")
+    .doc(room)
+    .collection("notebook")
+    .doc("page" + currentPage);
+
+  ref.set({
+    text: noteText.value,
+    updatedBy: username,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  });
+});
+
+function nextPage(){
+  if(currentPage < totalPages){
+    noteText.classList.remove("pagePrev");
+    noteText.classList.add("pageNext");
+
+    setTimeout(()=>{
+      currentPage++;
+      listenPage();
+      noteText.classList.remove("pageNext");
+    }, 200);
+  }
+}
+
+
+function prevPage(){
+  if(currentPage > 1){
+    noteText.classList.remove("pageNext");
+    noteText.classList.add("pagePrev");
+
+    setTimeout(()=>{
+      currentPage--;
+      listenPage();
+      noteText.classList.remove("pagePrev");
+    }, 200);
+  }
+}
+function updateBookmark(){
+  const ratio = currentPage / totalPages;
+  document.querySelector(".bookmark").style.top =
+    40 + ratio * 120 + "px";
+}
+let coverOpen = false;
+
+function toggleCover(){
+  const cover = document.querySelector(".balimsuNote");
+  coverOpen = !coverOpen;
+  cover.classList.toggle("notebookOpen", coverOpen);
+}
+
+const coverPhotos = [
+  { src:"https://i.hizliresim.com/i5ix9t2.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/2ixwb6i.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/qpmxa0m.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/rrj32sl.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/sd896sq.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/ibbzfpc.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/lv1swng.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/12mu707.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/hnp50og.png", text:"AZREAL VE BALIMSU DEFTERİ💙" },
+  { src:"https://i.hizliresim.com/cmj2sqo.png", text:"AZREAL VE BALIMSU DEFTERİ💙" }
+];
+
+let coverIndex = 0;
+
+function showCoverPhoto(){
+  coverPhoto.src = coverPhotos[coverIndex].src;
+  coverCaption.textContent = coverPhotos[coverIndex].text;
+}
+
+function nextCoverPhoto(){
+  coverIndex = (coverIndex + 1) % coverPhotos.length;
+  showCoverPhoto();
+}
+
+function prevCoverPhoto(){
+  coverIndex = (coverIndex - 1 + coverPhotos.length) % coverPhotos.length;
+  showCoverPhoto();
+}
+
+showCoverPhoto();
+
 
 </script>
 <div id="emojiPanel">
