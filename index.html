@@ -653,6 +653,106 @@ body{
 
 .coverPrev{ left:6px; }
 .coverNext{ right:6px; }
+#chatLayout{
+  position:relative; /* 🔥 ÖNEMLİ */
+}
+
+.garticCard{
+  position:fixed;      /* 🔥 soldaki boşluğa sabit */
+  left:20px;
+  top:30px;           /* müzik + tarifin hizası Yukarı çıkar → sayıyı küçült*/
+
+  width:150px;         /* kartımın boyutunu*/
+  height:160px;
+  border-radius:18px;
+
+  overflow:hidden;
+  cursor:pointer;
+
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(12px);
+
+  box-shadow:0 8px 25px rgba(0,0,0,.3);
+  transition:.3s;
+  z-index:999;
+}
+
+.garticCard:hover{
+  transform:scale(1.04);
+}
+
+.garticCard img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* alttaki yazı */
+.garticOverlay{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:6px;
+
+  font-size:13px;
+  font-weight:600;
+  text-align:center;
+  color:#fff;
+
+  background:linear-gradient(
+    rgba(0,0,0,0),
+    rgba(0,0,0,.75)
+  );
+}
+.externalGameCard{
+  position:fixed !important;
+  left:20px !important;
+  top:213px !important;
+
+  width:150px;
+  height:150px;
+  border-radius:16px;
+
+  overflow:hidden;
+  cursor:pointer;
+
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(12px);
+
+  box-shadow:0 6px 20px rgba(0,0,0,.3);
+  transition:.3s;
+
+  z-index:999999 !important; /* 🔥 her şeyin üstünde */
+}
+
+.externalGameCard:hover{
+  transform:scale(1.04);
+}
+
+.externalGameCard img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.externalGameOverlay{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:6px;
+
+  font-size:13px;
+  font-weight:600;
+  text-align:center;
+  color:#fff;
+
+  background:linear-gradient(
+    rgba(0,0,0,0),
+    rgba(0,0,0,.75)
+  );
+}
+
+
 
 
 </style>
@@ -718,6 +818,12 @@ body{
     <h4>🥑 Şekersiz Tarif</h4>
     <p>Buraya tarifini yaz…</p>
   </div>
+</div>
+
+
+<div class="garticBtn"
+     onclick="window.open('https://gartic.io','_blank')">
+  🎨
 </div>
 
 
@@ -1423,7 +1529,19 @@ showCoverPhoto();
   <span>🖤</span><span>🩶</span><span>🤍</span><span>💋</span><span>💯</span><span>💢</span><span>💥</span><span>💫</span>
   <span>💦</span><span>💨</span><span>🕳️</span><span>💬</span><span>👁️‍🗨️</span><span>🗨️</span><span>🗯️</span><span>💭</span>
 </div>
+<div class="garticCard"
+     onclick="window.open('https://gartic.io','_blank')">
+  <img src="https://i.hizliresim.com/4kwtd0s.png"">
+  <div class="garticOverlay">🎨 Çiz Anlat</div>
+</div>
+
+<div class="externalGameCard"
+     onclick="window.open('https://papergames.io/en/','_blank')">
+  <img src="https://i.hizliresim.com/41qrnor.png">
+  <div class="externalGameOverlay">Bize yeni bisi buldum 🤓</div>
+</div>
 
 </body>
+
 </html>
 
