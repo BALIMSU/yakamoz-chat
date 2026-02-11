@@ -753,9 +753,15 @@ body{
 }
 
 
-
-
 </style>
+<!-- Firebase core -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+<!-- Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 
 <body>
@@ -904,20 +910,46 @@ const firebaseConfig={
   authDomain:"ozel-chat-1ed06.firebaseapp.com",
   projectId:"ozel-chat-1ed06"
 };
+
+// Local veriler
+let username = localStorage.getItem("username") || "";
+let avatar = localStorage.getItem("avatar") || "";
+let room = "";
+
+
+// Firebase başlat
 firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
 
-let username=localStorage.getItem("username")||"";
-let avatar=localStorage.getItem("avatar")||"";
-let room="";
+// Firestore + Auth
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-window.onload=()=>show(username?"login":"nameScreen");
+
+// 🔐 SAYFA AÇILIR AÇILMAZ ANONİM LOGIN
+auth.signInAnonymously()
+  .then((userCredential) => {
+    console.log("Anonim login OK", userCredential.user.uid);
+  })
+  .catch((error) => {
+    console.error("Anonim login HATA", error);
+  });
+
+// 🔓 AUTH HAZIR OLUNCA UYGULAMAYI BAŞLAT
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    console.log("Auth hazır, UID:", user.uid);
+    window.currentUser = user;
+
+    // ⚠️ window.onload YOK
+    show(username ? "login" : "nameScreen");
+  }
+});
+
 
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
   document.getElementById(id).style.display="flex";
 }
-
 function saveName(){
   if(!usernameInput.value) return;
   localStorage.setItem("username",usernameInput.value);
@@ -928,21 +960,41 @@ function saveName(){
 }
 
 async function joinRoom(){
-  const rn=roomName.value, rp=roomPass.value;
-  if(!rn||!rp) return;
-  const ref=db.collection("rooms").doc(rn);
-  const doc=await ref.get();
-  if(!doc.exists) await ref.set({pass:rp,users:1});
-  else{
-    if(doc.data().pass!==rp) return error.innerText="Şifre yanlış";
-    await ref.update({users:doc.data().users+1});
+  if (!window.currentUser) {
+    console.log("⛔ Auth yokken joinRoom engellendi");
+    return;
   }
-  room=rn;
-  roomNameHeader.innerText=room;
+
+  const rn = document.getElementById("roomName").value.trim();
+  const rp = document.getElementById("roomPass").value || "";
+
+
+  if (!rn) {
+    error.innerText = "Oda adı boş olamaz";
+    return;
+  }
+
+  const ref = db.collection("rooms").doc(rn);
+  const doc = await ref.get();
+
+  if (!doc.exists) {
+    await ref.set({ pass: rp, users: 1 });
+  } else {
+    if (doc.data().pass !== rp) {
+      error.innerText = "Şifre yanlış";
+      return;
+    }
+    await ref.update({ users: doc.data().users + 1 });
+  }
+
+  room = rn;
+  roomNameHeader.innerText = room;
   show("chatScreen");
+
   listenMessages();
   listenPage();
 }
+
 
 function sendMessage(){
   if(!messageInput.value) return;
@@ -963,17 +1015,24 @@ function formatTime(ts){
 }
 
 function listenMessages(){
+  if (!window.currentUser) {
+    console.log("⛔ Auth yokken listenMessages engellendi");
+    return;
+  }
+
   db.collection("rooms").doc(room).collection("messages")
-  .orderBy("time").onSnapshot(s=>{
-    chat.innerHTML="";
+    .orderBy("time")
+    .onSnapshot(s=>{
+      chat.innerHTML="";
 
-    s.forEach(d=>{
-      if(d.metadata.hasPendingWrites) return;
+      s.forEach(d=>{
+        if(d.metadata.hasPendingWrites) return;
 
-      const m = d.data();
-      if(!m.time) return;
+        const m = d.data();
+        if(!m.time) return;
 
-      let wrap;
+        let wrap;
+        // devamı aynen kalsın
 
 if(m.type === "wheel"){
   wrap = document.createElement("div");
@@ -1397,7 +1456,9 @@ const totalPages = 6;
 let unsubscribeNote = null;
 
 function listenPage(){
-  if(unsubscribeNote) unsubscribeNote();
+  if (!window.currentUser || !room) return;
+
+  if (!currentPage) currentPage = 1; // 👈 BURAYA
 
   const ref = db
     .collection("rooms")
@@ -1415,7 +1476,7 @@ function listenPage(){
 
   pageInfo.innerText = `Sayfa ${currentPage} / ${totalPages}`;
 
-  updateBookmark(); // 🔖 AYIRACI GÜNCELLE
+  updateBookmark();
 }
 
 
@@ -1504,6 +1565,7 @@ function prevCoverPhoto(){
 
 showCoverPhoto();
 
+console.log("firebase:", firebase);
 
 </script>
 <div id="emojiPanel">
