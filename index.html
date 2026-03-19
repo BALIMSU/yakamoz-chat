@@ -752,7 +752,24 @@ body{
   );
 }
 
+#dropOverlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  color:#fff;
+  font-size:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+  z-index:999;
+}
 
+#dropOverlay.active{
+  opacity:1;
+}
 </style>
 <!-- Firebase core -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -762,6 +779,8 @@ body{
 
 <!-- Firebase Auth -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+
 </head>
 
 <body>
@@ -841,9 +860,12 @@ body{
     <div class="center">
       <div id="chatHeader">yakamaz 💗<span id="roomNameHeader"></span></div>
       <div id="chat"></div>
+      <div id="dropOverlay">Fotoğraf bırak 📷</div>
       <div id="sendBar">
         <input id="messageInput" placeholder="Mesaj yaz">
         <button id="emojiBtn">😊</button>
+        <input type="file" id="imageInput" accept="image/*" style="display:none">
+        <button onclick="document.getElementById('imageInput').click()">📷</button>
         <button onclick="sendMessage()">Gönder</button>
       </div>
     </div>
@@ -1063,7 +1085,8 @@ if(m.type === "wheel"){
   div.className = "msg " + (m.user === username ? "me" : "other");
   div.innerHTML = `
   <b>${m.user}</b><br>
-  ${m.text}
+  ${m.text ? m.text : ""}
+  ${m.image ? `<img src="${m.image}" style="max-width:200px;border-radius:12px;margin-top:5px;">` : ""}
   <div class="msgTime">${formatTime(m.time)}</div>
 `;
 }
@@ -1567,7 +1590,83 @@ showCoverPhoto();
 
 console.log("firebase:", firebase);
 
+function fileToBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
+const chatBox = document.getElementById("chat");
+const overlay = document.getElementById("dropOverlay");
+
+["dragenter","dragover"].forEach(event=>{
+  chatBox.addEventListener(event, e=>{
+    e.preventDefault();
+    overlay.classList.add("active");
+  });
+});
+
+["dragleave","drop"].forEach(event=>{
+  chatBox.addEventListener(event, e=>{
+    e.preventDefault();
+    overlay.classList.remove("active");
+  });
+});
+// 📷 FOTO BUTONU
+document.getElementById("imageInput").addEventListener("change", async function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  try {
+    const base64 = await fileToBase64(file);
+
+await db.collection("rooms")
+  .doc(room)
+  .collection("messages")
+  .add({
+    user: username,
+    avatar: avatar,
+    image: base64,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+    // scroll otomatik
+    chat.scrollTop = chat.scrollHeight;
+
+  } catch(err) {
+    console.error(err);
+    alert("Fotoğraf gönderilemedi");
+  }
+
+  e.target.value = ""; // aynı dosyayı tekrar seçmek için sıfırla
+});// 🖱️ DRAG DROP
+chatBox.addEventListener("drop", async function(e){
+  e.preventDefault();
+
+  const file = e.dataTransfer.files[0];
+  if(!file || !file.type.startsWith("image/")) return;
+
+  if(file.size > 2 * 1024 * 1024){
+    alert("Foto çok büyük (max 2MB)");
+    return;
+  }
+
+  const base64 = await fileToBase64(file);
+
+db.collection("rooms").doc(room).collection("messages").add({
+  user: username,
+  avatar: avatar,
+  image: base64,
+  time: firebase.firestore.FieldValue.serverTimestamp()
+});
+
+});
+
 </script>
+
 <div id="emojiPanel">
   <span>😀</span><span>😃</span><span>😄</span><span>😁</span><span>😆</span><span>😅</span><span>🤣</span><span>😂</span>
   <span>🙂</span><span>🙃</span><span>🫠</span><span>😉</span><span>😊</span><span>😇</span><span>🥰</span><span>😍</span>
