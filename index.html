@@ -824,7 +824,7 @@ body{
 <!-- LOGIN -->
 <div id="login" class="screen centerScreen">
   <div class="glassBox">
-    <h2>Sohbet Odamıza Hoşgeldin ❤️</h2>
+    <h2></h2>
     <input id="roomName" placeholder="Oda adı">
     <input id="roomPass" type="password" placeholder="Şifre">
     <button onclick="joinRoom()">Gir</button>
@@ -1111,12 +1111,12 @@ function listenMessages(){
   db.collection("rooms").doc(room).collection("messages")
     .orderBy("time")
     .onSnapshot(s=>{
-      chat.innerHTML="";
+      
+      s.docChanges().forEach(change=>{
+        if(change.type !== "added") return;
+        if(change.doc.metadata.hasPendingWrites) return;
 
-      s.forEach(d=>{
-        if(d.metadata.hasPendingWrites) return;
-
-        const m = d.data();
+        const m = change.doc.data();
         if(!m.time) return;
 
         let wrap;
@@ -1665,28 +1665,65 @@ function fileToBase64(file){
   });
 }
 
+async function compressImage(file){
+
+  return new Promise(resolve=>{
+
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = e=>{
+      img.src = e.target.result;
+    };
+
+    img.onload = ()=>{
+
+      const canvas = document.createElement("canvas");
+
+      const max = 700;
+
+      let w = img.width;
+      let h = img.height;
+
+      if(w > h){
+
+        if(w > max){
+          h *= max / w;
+          w = max;
+        }
+
+      } else {
+
+        if(h > max){
+          w *= max / h;
+          h = max;
+        }
+      }
+
+      canvas.width = w;
+      canvas.height = h;
+
+      const ctx = canvas.getContext("2d");
+
+      ctx.drawImage(img,0,0,w,h);
+
+      resolve(
+        canvas.toDataURL("image/jpeg",0.6)
+      );
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
 const chatBox = document.getElementById("chat");
 const overlay = document.getElementById("dropOverlay");
-
-["dragenter","dragover"].forEach(event=>{
-  chatBox.addEventListener(event, e=>{
-    e.preventDefault();
-    overlay.classList.add("active");
-  });
-});
-
-["dragleave","drop"].forEach(event=>{
-  chatBox.addEventListener(event, e=>{
-    e.preventDefault();
-    overlay.classList.remove("active");
-  });
-});
 // 📷 FOTO BUTONU
 document.getElementById("imageInput").addEventListener("change", async function(e){
   const file = e.target.files[0];
   if(!file) return;
 
-   pendingImage = await fileToBase64(file);
+   pendingImage = await compressImage(file);
 
    previewBox.style.display = "block";
    previewImg.src = pendingImage;
@@ -1702,7 +1739,7 @@ chatBox.addEventListener("drop", async function(e){
   const file = e.dataTransfer.files[0];
   if(!file || !file.type.startsWith("image/")) return;
 
-  pendingImage = await fileToBase64(file);
+  pendingImage = await compressImage(file);
 
 previewBox.style.display = "block";
 previewImg.src = pendingImage;
