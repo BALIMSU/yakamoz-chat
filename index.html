@@ -1108,19 +1108,22 @@ function listenMessages(){
     return;
   }
 
-  db.collection("rooms").doc(room).collection("messages")
-    .orderBy("time")
-    .onSnapshot(s=>{
-      
-      s.docChanges().forEach(change=>{
-        if(change.type !== "added") return;
-        if(change.doc.metadata.hasPendingWrites) return;
+db.collection("rooms").doc(room).collection("messages")
+  .orderBy("time")
+  .limitToLast(25)
+  .onSnapshot(s=>{
 
-        const m = change.doc.data();
-        if(!m.time) return;
+    s.docChanges().forEach(change=>{
 
-        let wrap;
-        // devamı aynen kalsın
+      if(change.type !== "added") return;
+
+      if(change.doc.metadata.hasPendingWrites) return;
+
+      const m = change.doc.data();
+
+      if(!m.time) return;
+
+      let wrap;
 
 if(m.type === "wheel"){
   wrap = document.createElement("div");
