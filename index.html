@@ -1117,8 +1117,6 @@ db.collection("rooms").doc(room).collection("messages")
 
       if(change.type !== "added") return;
 
-      if(change.doc.metadata.hasPendingWrites) return;
-
       const m = change.doc.data();
 
       if(!m.time) return;
