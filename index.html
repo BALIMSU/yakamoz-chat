@@ -794,7 +794,21 @@ body{
   display:inline-block;
   animation:diceShake .7s ease;
 }
+.diceBtn{
+  margin-top:10px;
+  border:none;
+  background:none;
+  cursor:pointer;
+}
 
+.diceBtn img{
+  width:55px;
+  transition:.2s;
+}
+
+.diceBtn img:hover{
+  transform:scale(1.1) rotate(10deg);
+}
 @keyframes diceShake{
 
   0%{
@@ -959,7 +973,6 @@ body{
     <input type="file" id="imageInput" accept="image/*" style="display:none">
     <button onclick="document.getElementById('imageInput').click()">📷</button>
     <button onclick="sendMessage()">Gönder</button>
-    <button onclick="rollDice()">🎲</button>
   </div>
 </div>
 
@@ -1003,20 +1016,28 @@ body{
 
 </div>
 
-  <div class="note">
-    <h4>💭 Özlü Söz</h4>
-    Sessizlik bazen en güzel cevaptır.
-  </div>
+<div class="note">
+  <h4>💭 Özlü Söz</h4>
+  Sessizlik bazen en güzel cevaptır.
+</div>
 
-  <div class="wheelBox">
-    <canvas id="wheel" width="220" height="220"></canvas>
-    <button onclick="spinWheel()">Çevir</button>
-    <div id="wheelResult"></div>
-  </div>
+<div class="wheelBox">
+
+  <canvas id="wheel" width="220" height="220"></canvas>
+
+  <button onclick="spinWheel()">
+    Çevir
+  </button>
+
+  <div id="wheelResult"></div>
+
+  <button onclick="rollDice()" class="diceBtn">
+  <img src="images/dice.png">
+</button>
 
 </div>
 
-
+</div>
 </div>
 
 <script>
