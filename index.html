@@ -201,11 +201,20 @@ body{
   text-align:center;
 }
 
+.msgTime{
+  opacity:.7;
+  font-size:11px;
+}
 
+/* BURAYA EKLE */
+
+
+@media(max-width:700px){
 /* MOBILE */
 @media(max-width:900px){
   #chatLayout{grid-template-columns:1fr;}
   .side{display:none;}
+}
 }
 /* 🎧 MUSIC CARD */
 .musicCard{
@@ -780,6 +789,38 @@ body{
   transform:scale(1.05);
 }
 
+.diceRoll{
+  font-size:60px;
+  display:inline-block;
+  animation:diceShake .7s ease;
+}
+
+@keyframes diceShake{
+
+  0%{
+    transform:rotate(0deg) scale(1);
+  }
+
+  20%{
+    transform:rotate(-25deg) scale(1.15);
+  }
+
+  40%{
+    transform:rotate(25deg) scale(1.2);
+  }
+
+  60%{
+    transform:rotate(-20deg) scale(1.15);
+  }
+
+  80%{
+    transform:rotate(20deg) scale(1.1);
+  }
+
+  100%{
+    transform:rotate(0deg) scale(1);
+  }
+}
 /* FULLSCREEN */
 #imageModal{
   position:fixed;
@@ -918,6 +959,7 @@ body{
     <input type="file" id="imageInput" accept="image/*" style="display:none">
     <button onclick="document.getElementById('imageInput').click()">📷</button>
     <button onclick="sendMessage()">Gönder</button>
+    <button onclick="rollDice()">🎲</button>
   </div>
 </div>
 
@@ -1123,13 +1165,20 @@ db.collection("rooms").doc(room).collection("messages")
       let wrap;
 
 if(m.type === "wheel"){
+
   wrap = document.createElement("div");
   wrap.className = "systemWrap";
+
+} else if(m.type === "dice"){
+
+  wrap = document.createElement("div");
+  wrap.className = "systemWrap";
+
 } else {
+
   wrap = document.createElement("div");
   wrap.className = "msgWrap";
 }
-
 
       if(m.user !== username && m.avatar){
         const img = document.createElement("img");
@@ -1141,14 +1190,28 @@ if(m.type === "wheel"){
       const div = document.createElement("div");
 
 if(m.type === "wheel"){
+
   div.className = "systemMsg";
+
   div.innerHTML = `
     🎡 <b>${m.user}</b> çark çevirdi<br>
     ${m.result}
   `;
+
+} else if(m.type === "dice"){
+
+  div.className = "systemMsg";
+
+  div.innerHTML = `
+    🎲 <b>${m.user}</b> zar attı<br>
+    <div class="diceRoll">${m.emoji}</div>
+    Sonuç: ${m.result}
+  `;
+
 } else {
 
   div.className = "msg " + (m.user === username ? "me" : "other");
+
   div.innerHTML = `
   <b>${m.user}</b><br>
   ${m.text ? m.text : ""}
@@ -1240,7 +1303,35 @@ function spinWheel(){
   }
   requestAnimationFrame(animate);
 }
+function rollDice(){
 
+  const dice = Math.floor(Math.random() * 6) + 1;
+
+  const emojis = {
+    1:"⚀",
+    2:"⚁",
+    3:"⚂",
+    4:"⚃",
+    5:"⚄",
+    6:"⚅"
+  };
+
+  db.collection("rooms")
+    .doc(room)
+    .collection("messages")
+    .add({
+
+      type:"dice",
+
+      user:username,
+
+      result:dice,
+
+      emoji:emojis[dice],
+
+      time: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
 function showResult(){
   const slice = (2 * Math.PI) / items.length;
 
