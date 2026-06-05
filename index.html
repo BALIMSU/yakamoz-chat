@@ -758,7 +758,61 @@ body{
     rgba(0,0,0,.75)
   );
 }
+.fridayCard{
+  position:fixed;
+  right:20px;
+  top:400px;   /* bunu istediğin gibi ayarlayabilirsin */
 
+  width:190px;
+  height:160px;
+  border-radius:18px;
+  overflow:hidden;
+  cursor:pointer;
+
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(12px);
+
+  box-shadow:0 8px 25px rgba(0,0,0,.3);
+  z-index:999;
+}
+
+.fridayCard img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.fridayOverlay{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:8px;
+  text-align:center;
+  color:white;
+  background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.7));
+}
+
+.diceRoll{
+  font-size:60px;
+  display:inline-block;
+  animation:diceShake .7s ease;
+}
+
+.diceBtn{
+  margin-top:10px;
+  border:none;
+  background:none;
+  cursor:pointer;
+}
+
+.diceBtn img{
+  width:55px;
+  transition:.2s;
+}
+
+.diceBtn img:hover{
+  transform:scale(1.1) rotate(10deg);
+}
 #dropOverlay{
   position:absolute;
   inset:0;
@@ -850,6 +904,32 @@ body{
   max-width:90%;
   max-height:90%;
   border-radius:16px;
+}
+.miniFridayWheel{
+  width:120px;
+  height:120px;
+
+  margin:15px auto;
+
+  background-image:url("images/cuma1.jpg");
+  background-size:cover;
+  background-position:center;
+
+  border-radius:12px;
+
+  cursor:pointer;
+
+  transition:.2s;
+
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+
+.miniFridayWheel:hover{
+  transform:scale(1.05);
+}
+
+.miniWheelInner{
+  display:none;
 }
 </style>
 <!-- Firebase core -->
@@ -1016,11 +1096,6 @@ body{
 
 </div>
 
-<div class="note">
-  <h4>💭 Özlü Söz</h4>
-  Sessizlik bazen en güzel cevaptır.
-</div>
-
 <div class="wheelBox">
 
   <canvas id="wheel" width="220" height="220"></canvas>
@@ -1032,14 +1107,14 @@ body{
   <div id="wheelResult"></div>
 
   <button onclick="rollDice()" class="diceBtn">
-  <img src="images/dice.png">
-</button>
+    <img src="images/dice.png">
+  </button>
+
+  <div class="miniFridayWheel" onclick="sendFriday()">
+    <div class="miniWheelInner">☪️</div>
+  </div>
 
 </div>
-
-</div>
-</div>
-
 <script>
 window.addEventListener("load", () => {
 
@@ -1195,6 +1270,11 @@ if(m.type === "wheel"){
   wrap = document.createElement("div");
   wrap.className = "systemWrap";
 
+} else if(m.type === "friday"){
+
+  wrap = document.createElement("div");
+  wrap.className = "systemWrap";
+
 } else {
 
   wrap = document.createElement("div");
@@ -1227,6 +1307,25 @@ if(m.type === "wheel"){
     🎲 <b>${m.user}</b> zar attı<br>
     <div class="diceRoll">${m.emoji}</div>
     Sonuç: ${m.result}
+
+    <div style="
+      font-size:11px;
+      opacity:.6;
+      text-align:right;
+      margin-top:6px;
+    ">
+      ${m.localTime || formatTime(m.time)}
+    </div>
+  `;
+
+} else if(m.type === "friday"){
+
+  div.className = "systemMsg";
+
+  div.innerHTML = `
+    ☪️ <b>${m.user}</b><br>
+    ${m.text}<br>
+    <img src="${m.image}" class="chatImage">
   `;
 
 } else {
@@ -1234,13 +1333,12 @@ if(m.type === "wheel"){
   div.className = "msg " + (m.user === username ? "me" : "other");
 
   div.innerHTML = `
-  <b>${m.user}</b><br>
-  ${m.text ? m.text : ""}
-  ${m.image ? `<img src="${m.image}" class="chatImage">` : ""}
-  <div class="msgTime">${formatTime(m.time)}</div>
-`;
+    <b>${m.user}</b><br>
+    ${m.text ? m.text : ""}
+    ${m.image ? `<img src="${m.image}" class="chatImage">` : ""}
+    <div class="msgTime">${formatTime(m.time)}</div>
+  `;
 }
-
 wrap.appendChild(div);
 
 
@@ -1350,9 +1448,159 @@ function rollDice(){
 
       emoji:emojis[dice],
 
-      time: firebase.firestore.FieldValue.serverTimestamp()
+      time: firebase.firestore.FieldValue.serverTimestamp(),
+      localTime: new Date().toLocaleTimeString("tr-TR",{
+      hour:"2-digit",
+      minute:"2-digit"
+     })
     });
 }
+
+const fridayMemes = [
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma1.jpg"
+},
+{
+  text:"📿 Amin yaz geç 😅",
+  image:"images/cuma2.jpg"
+},
+{
+  text:"☕ Cuma mesajı görevi tamamlandı.",
+  image:"images/cuma3.jpg"
+},
+{
+  text:"🤲 Allah kabul etsin, şimdi uykuya devam.",
+  image:"images/cuma4.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma5.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma6.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma7.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma8.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma9.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma10.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma11.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma12.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma13.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma1.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma14.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma15.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma16.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma17.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma18.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma19.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma20.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma21.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma22.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma23.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma24.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma25.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma26.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma27.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma28.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma29.jpg"
+},
+{
+  text:"🕌 Hayırlı Cumalar 😂",
+  image:"images/cuma30.jpg"
+}
+];
+
+function sendFriday(){
+
+  const item =
+    fridayMemes[Math.floor(Math.random()*fridayMemes.length)];
+
+  db.collection("rooms")
+    .doc(room)
+    .collection("messages")
+    .add({
+      type:"friday",
+      user:username,
+      text:item.text,
+      image:item.image,
+      time:firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+}
+
 function showResult(){
   const slice = (2 * Math.PI) / items.length;
 
@@ -1912,6 +2160,7 @@ document.getElementById("removeImageBtn").onclick = () => {
 <div id="imageModal" onclick="this.style.display='none'">
   <img id="modalImg">
 </div>
+
 </body>
 
 </html>
